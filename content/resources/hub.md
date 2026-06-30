@@ -31,6 +31,10 @@ You will find documentation for every QGIS Long Term Release (LTR) on the respec
 
 [Get involved]({{< ref "/community/involve" >}}) and help us write a better documentation.
 
+## Featured Plugins
+
+{{< rich-list listLink="/resources/leafengines-plugin"  layoutClass="inline-block" listTitle="LeafEngines Agricultural Intelligence" listSubtitle="WFS-powered soil, water quality, and AI crop recommendations for QGIS">}}
+
 {{< language-select >}}
 
 <!--{{< tabs tab1="QGIS |ltrversion|" tab2="QGIS |version|" tab3="QGIS testing (>|version|)" tab4="Archived releases" tab5="Data protection">}} -->
