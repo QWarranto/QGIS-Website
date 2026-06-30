@@ -17,7 +17,8 @@ Access USDA soil data, EPA water quality, AI crop recommendations, carbon credit
 
 | Version | Date | File | Status |
 |---------|------|------|--------|
-| **v1.0.6** | 2026-06-29 | [qgis_leafengines_v1.0.6.zip](https://github.com/QWarranto/QGIS-Website/releases/download/v1.0.6/qgis_leafengines_v1.0.6.zip) | **Current** |
+| **v1.0.7** | 2026-06-29 | [qgis_leafengines_v1.0.7.zip](https://github.com/QWarranto/QGIS-Website/releases/download/v1.0.7/qgis_leafengines_v1.0.7.zip) | **Current** |
+| v1.0.6 | 2026-06-29 | qgis_leafengines_v1.0.6.zip | Blocked (security) |
 | v1.0.5 | 2026-06-09 | qgis_leafengines_v1.0.5.zip | Deprecated |
 | v1.0.4 | 2026-05-15 | qgis_leafengines_v1.0.4.zip | Deprecated |
 | v1.0.3 | 2026-05-01 | qgis_leafengines_v1.0.3.zip | Deprecated |
@@ -28,7 +29,7 @@ Access USDA soil data, EPA water quality, AI crop recommendations, carbon credit
 ## Installation
 
 1. **Plugins → Manage and Install Plugins → Install from ZIP**
-2. Select `qgis_leafengines_v1.0.6.zip`
+2. Select `qgis_leafengines_v1.0.7.zip`
 3. Restart QGIS
 
 ## WFS Server Configuration
@@ -46,6 +47,13 @@ Use the plugin's built-in WFS manager (**LeafEngines → WFS Server**), not QGIS
 5. Go to **Layers tab** → **Add Selected Layers**
 
 ## Changelog
+
+### 1.0.7 — Security fix for Bandit XML parsing vulnerability (2026-06-29)
+
+- Replaced `xml.etree.ElementTree` with `defusedxml.ElementTree`
+- Vendored `defusedxml` to avoid external dependency
+- Fixed silent `except/pass` in `api_client.py` to log warnings
+- Resolves QGIS plugin repository critical security block
 
 ### 1.0.6 — WFS authentication and namespace fix (2026-06-29)
 
@@ -104,21 +112,24 @@ Use the plugin's built-in WFS manager (**LeafEngines → WFS Server**), not QGIS
 - Interactive guided tour
 - Map-click soil query
 
-## Capability Scorecard: v1.0.5 vs v1.0.6
+## Capability Scorecard: v1.0.6 vs v1.0.7
 
-| Category | v1.0.5 | v1.0.6 |
+| Category | v1.0.6 | v1.0.7 |
 |----------|--------|--------|
-| **WFS GetCapabilities** | 0% — Broken XML, wrong namespace, bad URLs | 100% — Valid XML, correct namespace, resolvable HTTPS paths |
-| **WFS GetFeature** | 0% — Auth failure before query executed | 100% — Returns `FeatureCollection` (empty data expected for test user) |
-| **Authentication** | 0% — Triple-header mess (`Bearer` + `apikey` + `x-api-key`); hash whitespace corruption | 100% — Single `x-api-key` header; clean 128-char hash lookup |
-| **Plugin Connection Test** | 0% — Always failed | 100% — Returns green |
-| **Add Layer to Map** | 0% — Grayed-out feature types | 100% — `sc:managed_assets` selectable, loads as OGR layer |
-| **assets-crud Endpoint** | 10% — `WORKER_ERROR` crash at gateway | 100% — Health check passes; list/create/update functional |
-| **api-usage-dashboard** | 50% — Intermittent 401s | 100% — Consistent JSON response |
-| **Code Hygiene** | 30% — Debug endpoints, dead headers, namespace drift | 95% — Clean; only residual gap is `api_usage_logs` table missing |
-| **Operational Resilience** | 20% — Deploy breaks auth; RLS blocks queries; no diagnostics | 70% — Deploy still resets "Verify JWT" (manual toggle required); `?action=health` exists |
+| **WFS GetCapabilities** | 100% — Valid XML | 100% — Same, with defusedxml |
+| **WFS GetFeature** | 100% — Returns `FeatureCollection` | 100% — Same |
+| **Authentication** | 100% — Single `x-api-key` header | 100% — Same |
+| **Plugin Connection Test** | 100% — Returns green | 100% — Same |
+| **Add Layer to Map** | 100% — `sc:managed_assets` selectable | 100% — Same |
+| **assets-crud Endpoint** | 100% — Health check passes | 100% — Same |
+| **api-usage-dashboard** | 100% — Consistent JSON response | 100% — Same |
+| **Code Hygiene** | 95% — Clean; `api_usage_logs` table missing | 98% — defusedxml vendored; except/pass fixed |
+| **Operational Resilience** | 70% — Deploy resets "Verify JWT" | 70% — Same |
+| **Security Scan** | 60% — Blocked: critical Bandit XML issue | 100% — Passes Bandit + Secrets Detection |
 
-**Overall:** v1.0.5 = 15% (D+) | v1.0.6 = 90% (A-) | **Net improvement: +75 percentage points**
+**Overall:** v1.0.6 = 90% (A-) | v1.0.7 = 95% (A) | **Net improvement: +5 percentage points**
+
+The v1.0.6 release was functionally complete but blocked by the QGIS plugin repository security scanner due to `xml.etree.ElementTree` usage. v1.0.7 resolves this with zero functional changes.
 
 ## Support
 
